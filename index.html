@@ -256,6 +256,8 @@ button{font-family:inherit;color:inherit}
   transition:transform .14s;overflow:hidden;display:flex;flex-direction:column}
 .bar .one{width:100%;border-bottom:3px solid var(--ink);flex:none}
 .mon:hover .bar{transform:translateY(-4px)}
+.mon.sel .bar{transform:translateY(-6px)}
+.mon.sel .ml{text-decoration:underline;text-decoration-thickness:3px}
 .bar.inc{background:var(--white)}.bar.exp{background:var(--pink)}
 .mon .ml{font-family:"Rubik";font-weight:900;font-size:13px}
 .mon .mv{display:flex;align-items:center;gap:5px;font-family:"Rubik";font-weight:800;font-size:11.5px;
@@ -424,6 +426,7 @@ input.sinput::placeholder{color:#0a0a0a;opacity:.45}
   .mrow{display:block;width:100%;text-align:start;background:none;border:0;cursor:pointer;
     padding:11px 0;border-bottom:3px dashed var(--ink)}
   .mrow:last-child{border-bottom:0}
+  .mrow.sel{background:var(--marker);border-radius:12px;padding-inline:10px;margin-inline:-10px}
   .mtop{display:flex;justify-content:space-between;align-items:center}
   .mname{font-family:"Rubik";font-weight:900;font-size:15px}
   .mbar{display:flex;align-items:center;gap:9px;margin-top:6px}
@@ -713,7 +716,7 @@ function renderHome(){
     </div>
     <div class="bars">${S.mon.map(m=>{
       const it=m.ir+m.io, et=m.er+m.eo, n=it-et;
-      return `<button class="mon" data-month="${m.k}" title="הצג את תנועות ${m.l}">
+      return `<button class="mon ${F.month===m.k?'sel':''}" data-month="${m.k}" title="הצג את תנועות ${m.l}">
         <div class="pair">
           <div class="bar inc" style="height:${it/MX*100}%">${m.io?`<div class="one" style="height:${m.io/it*100}%;background:var(--marker)"></div>`:''}</div>
           <div class="bar exp" style="height:${et/MX*100}%">${m.eo?`<div class="one" style="height:${m.eo/et*100}%;background:var(--lilac)"></div>`:''}</div>
@@ -725,7 +728,7 @@ function renderHome(){
     </div>
     <div class="mlist">${S.mon.map(m=>{
       const it=m.ir+m.io, et=m.er+m.eo, n=it-et;
-      return `<button class="mrow" data-month="${m.k}">
+      return `<button class="mrow ${F.month===m.k?'sel':''}" data-month="${m.k}">
         <div class="mtop"><span class="mname">${m.l}</span>
           <span class="nt ${n<0?'d':'u'}">${sign(n)} ₪</span></div>
         <div class="mbar"><span class="t">
@@ -1124,7 +1127,7 @@ chips.onclick=e=>{
   const b=e.target.closest('[data-clear]'); if(!b)return;
   const k=b.dataset.clear;
   if(k==='cat'){F.cat=null;document.querySelectorAll('.cat.sel').forEach(c=>c.classList.remove('sel'))}
-  if(k==='month')F.month=null;
+  if(k==='month'){F.month=null;renderHome()}
   if(k==='owner'){setAcc('')}
   if(k==='q'){F.q='';document.getElementById('q').value=''}
   shown=PAGE; renderTx();
@@ -1159,8 +1162,8 @@ document.getElementById('accBar').addEventListener('click',e=>{
 });
 document.getElementById('p-sum').addEventListener('click',e=>{
   if(e.target.closest('[data-info]'))return;
-  const m=e.target.closest('.mon');
-  if(m){F.month=F.month===m.dataset.month?null:m.dataset.month; shown=PAGE; go('tx'); renderTx(); return}
+  const m=e.target.closest('[data-month]');
+  if(m){F.month=F.month===m.dataset.month?null:m.dataset.month; shown=PAGE; renderHome(); go('tx'); renderTx(); return}
   const mp=e.target.closest('.mapc');
   if(mp){ if(mp.dataset.seg){side='out';segV=mp.dataset.seg;renderSplit()} go(mp.dataset.goto); }
 });
